@@ -2,6 +2,7 @@ library(tidyverse)
 library(tidytext)
 library(here)
 
+
 # import song lyrics and population data
 song_lyrics <- here("data", "billboard_lyrics_1964-2015.csv") %>%
   read_csv()

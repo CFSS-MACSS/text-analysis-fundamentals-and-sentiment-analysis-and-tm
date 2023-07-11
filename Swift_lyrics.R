@@ -1,5 +1,3 @@
-# PRACTICE SENTIMENT ANALYSIS IN R WITH HARRY POTTER DATA
-
 ### This code is divided in four sections
 # 1. LOAD/INSTALL LIBRARIES
 # 2. LOAD AND PROCESS DATA
@@ -14,88 +12,67 @@
 
 library(tidyverse)
 library(tidytext)
-library(harrypotter)
-
-## if the harrypotter package is not present, use this function install it:
-## devtools::install_github("bradleyboehmke/harrypotter")
-## DO NOT USE install.packages("harrypotter") - that is a different package
-
+library(stringr)
 
 
 ### 2.LOAD AND PROCESS DATA 
+taylor_swift_lyrics <- read_csv("data/taylor_swift_lyrics.csv")
 
-# load Harry Potter text (names of each book)
-hp_books <- c(
-  "philosophers_stone", "chamber_of_secrets",
-  "prisoner_of_azkaban", "goblet_of_fire",
-  "order_of_the_phoenix", "half_blood_prince",
-  "deathly_hallows"
-)
+albums <- c("Taylor Swift", "Fearless", "Speak Now",  "Red", "1989", "reputation", "Lover", "folklore")
+
+taylor_swift_lyrics <- taylor_swift_lyrics %>%
+    mutate(song = )
 
 # combine books into a list
-hp_words <- list(
-  philosophers_stone,
-  chamber_of_secrets,
-  prisoner_of_azkaban,
-  goblet_of_fire,
-  order_of_the_phoenix,
-  half_blood_prince,
-  deathly_hallows
-) %>%
-  # name each list element
-  set_names(hp_books) %>%
-  # convert each book to a data frame and merge into a single data frame
-  map_df(as_tibble, .id = "book") %>%
+ts_words <- taylor_swift_lyrics %>%
   # convert book to a factor
-  mutate(book = factor(book, levels = hp_books)) %>%
+  mutate(Album = factor(Album, levels = albums)) %>%
   # remove empty chapters
-  drop_na(value) %>%
+  #drop_na(value) %>%
   # create a chapter id column
-  group_by(book) %>%
-  mutate(chapter = row_number(book)) %>%
+  group_by(Album)  %>%
   ungroup() %>%
   # tokenize the data frame
-  unnest_tokens(word, value)
+  unnest_tokens(word, Lyrics)
 # check
-hp_words
+ts_words
 
-# most frequent words, by book (removing stop words)
-hp_words %>%
+
+# most frequent words, by album (removing stop words)
+ts_words %>%
   # delete stopwords
   anti_join(stop_words) %>%
   # summarize count per word per book
-  count(book, word) %>%
+  count(Album, word) %>%
   # get top 15 words per book
-  group_by(book) %>%
+  group_by(Album) %>%
   slice_max(order_by = n, n = 15) %>%
-  mutate(word = reorder_within(word, n, book)) %>%
+  mutate(word = reorder_within(word, n, Album)) %>%
   # create barplot
-  ggplot(aes(x = word, y = n, fill = book)) +
+  ggplot(aes(x = word, y = n, fill = Album)) +
   geom_col(color = "black") +
   scale_x_reordered() +
   labs(
-    title = "Most frequent words in Harry Potter",
+    title = "Most frequent words in Taylor Swift Songs",
     x = NULL,
     y = "Word count"
   ) +
-  facet_wrap(facets = vars(book), scales = "free") +
+  facet_wrap(facets = vars(Album), scales = "free") +
   coord_flip() +
   theme(legend.position = "none")
-
-
 
 ### 3. SENTIMENT ANALYSIS EXAMPLE USING BING DICTIONARY
 
 # generate data frame with sentiment derived from the Bing dictionary
-(hp_bing <- hp_words %>%
-  inner_join(get_sentiments("bing")))
+(ts_bing <- ts_words %>%
+    inner_join(get_sentiments("bing")))
 
 # using the Bing dictionary:
 # visualize the most frequent positive/negative words in the all series and for each book
 # see reorder_within() and scale_x_reordered(): https://juliasilge.com/blog/reorder-within/
 
-## for all series
-hp_bing %>%
+## for all albums
+ts_bing %>%
   # generate frequency count for each word and sentiment
   group_by(sentiment) %>%
   count(word) %>%
@@ -111,59 +88,58 @@ hp_bing %>%
   scale_x_reordered() +
   facet_wrap(facets = vars(sentiment), scales = "free_y") +
   labs(
-    title = "Sentimental words used in the Harry Potter series",
+    title = "Sentimental words used in Taylor Swift Albums",
     x = NULL,
-    y = "Number of occurences in all seven books"
+    y = "Number of occurences in all eight books (working on the rest!!)"
   ) +
   coord_flip()
 
-## for each book
-hp_pos_neg_book <- hp_bing %>%
-  # generate frequency count for each book, word, and sentiment
-  group_by(book, sentiment) %>%
+## for each album
+ts_pos_neg_album <- ts_bing %>%
+  # generate frequency count for each album, word, and sentiment
+  group_by(Album, sentiment) %>%
   count(word) %>%
-  # extract 10 most frequent pos/neg words per book
-  group_by(book, sentiment) %>%
+  # extract 10 most frequent pos/neg words per album
+  group_by(Album, sentiment) %>%
   slice_max(order_by = n, n = 10)
 
 ## positive words
-hp_pos_neg_book %>%
+ts_pos_neg_album %>%
   filter(sentiment == "positive") %>%
-  mutate(word = reorder_within(word, n, book)) %>%
+  mutate(word = reorder_within(word, n, Album)) %>%
   ggplot(aes(word, n)) +
   geom_col(show.legend = FALSE) +
   scale_x_reordered() +
-  facet_wrap(facets = vars(book), scales = "free_y") +
+  facet_wrap(facets = vars(Album), scales = "free_y") +
   labs(
-    title = "Positive words used in the Harry Potter series",
+    title = "Positive words used in Taylor Swift albums",
     x = NULL,
     y = "Number of occurences"
   ) +
   coord_flip()
 
 ## negative words
-hp_pos_neg_book %>%
+ts_pos_neg_album %>%
   filter(sentiment == "negative") %>%
-  mutate(word = reorder_within(word, n, book)) %>%
+  mutate(word = reorder_within(word, n, Album)) %>%
   ggplot(aes(word, n)) +
   geom_col(show.legend = FALSE) +
   scale_x_reordered() +
   facet_wrap(facets = vars(book), scales = "free_y") +
   labs(
-    title = "Negative words used in the Harry Potter series",
+    title = "Negative words used in Taylor Swift albums",
     x = NULL,
     y = "Number of occurences"
   ) +
   coord_flip()
 
 
-
 ### 4. SENTIMENT ANALYSIS EXAMPLE USING AFINN DICTIONARY
 
 # Generate data frame with sentiment derived from the AFINN dictionary
-(hp_afinn <- hp_words %>%
-  inner_join(get_sentiments("afinn")) %>%
-  group_by(book, chapter))
+(ts_afinn <- ts_words %>%
+    inner_join(get_sentiments("afinn")) %>%
+    group_by(Album, Title))
 
 # for further practice (at home): 
 # repeat (and adapt) the code above, using the AFINN dictionary instead
@@ -174,7 +150,7 @@ hp_pos_neg_book %>%
 library(ggwordcloud)
 
 set.seed(123) # ensure reproducibility of the wordcloud
-hp_afinn %>%
+ts_afinn %>%
   # count word frequency across books
   ungroup() %>%
   count(word) %>%
@@ -184,45 +160,30 @@ hp_afinn %>%
   ggplot(aes(label = word, size = n, angle = angle)) +
   geom_text_wordcloud(rm_outside = TRUE) +
   scale_size_area(max_size = 15) +
-  ggtitle("Most frequent tokens in Harry Potter") +
+  ggtitle("Most frequent tokens in Taylor Swift Lyrics") +
   theme_minimal()
 
-# filter out "moody"
-hp_afinn <- hp_afinn %>%
-  filter(word != "moody")
+
 
 # Visualize positive/negative sentiment for each book over time using AFINN dictionary
-hp_words %>%
+ts_words %>%
   inner_join(get_sentiments("afinn")) %>%
-  group_by(book, chapter) %>%
+  group_by(Title, Album) %>%
   summarize(value = sum(value)) %>%
-  ggplot(mapping = aes(x = chapter, y = value, fill = book)) +
+  ggplot(mapping = aes(x = Title, y = value, fill = Album)) +
   geom_col() +
-  facet_wrap(facets = vars(book), scales = "free_x") +
+  facet_wrap(facets = vars(Album), scales = "free_x") +
   labs(
-    title = "Emotional arc of Harry Potter books",
+    title = "Emotional arc of Taylor Swift albums",
     subtitle = "AFINN sentiment dictionary",
-    x = "Chapter",
+    x = "Title",
     y = "Emotional score"
   ) +
-  theme(legend.position = "none")
+  theme(legend.position = "none", axis.text.x = element_text(angle = 45, hjust = 1))
 
-## cumulative value
-hp_words %>%
-  inner_join(get_sentiments("afinn")) %>%
-  group_by(book) %>%
-  mutate(cumvalue = cumsum(value)) %>%
-  ggplot(mapping = aes(x = chapter, y = cumvalue, fill = book)) +
-  geom_step() +
-  facet_wrap(facets = vars(book), scales = "free_x") +
-  labs(
-    title = "Emotional arc of Harry Potter books",
-    subtitle = "AFINN sentiment dictionary",
-    x = "Chapter",
-    y = "Cumulative emotional value"
-  )
+
 
 
 ### ACKNOWLEDGMENTS
-# Harry Plotter: Celebrating the 20 year anniversary with tidytext and the tidyverse in R 
-# https://paulvanderlaken.com/2017/08/03/harry-plotter-celebrating-the-20-year-anniversary-with-tidytext-the-tidyverse-and-r/
+
+#Based on code by Sabrina Nardin and using data from Benjamin Soltoff

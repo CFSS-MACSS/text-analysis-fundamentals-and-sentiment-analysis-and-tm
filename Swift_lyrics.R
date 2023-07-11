@@ -8,6 +8,7 @@
 # For other examples see the book, especially chapter 2 and the case-study chapters
 
 
+
 ### 1. LOAD/INSTALL LIBRARIES 
 
 library(tidyverse)
@@ -18,10 +19,12 @@ library(stringr)
 ### 2.LOAD AND PROCESS DATA 
 taylor_swift_lyrics <- read_csv("data/taylor_swift_lyrics.csv")
 
-albums <- c("Taylor Swift", "Fearless", "Speak Now",  "Red", "1989", "reputation", "Lover", "folklore")
+albums <- c("Taylor Swift", "Fearless", "Speak Now",  "Red", "1989", "reputation", "Lover", "folklore", "Midnights 3am")
 
-taylor_swift_lyrics <- taylor_swift_lyrics %>%
-    mutate(song = )
+taylor_swift_lyrics <- taylor_swift_lyrics %>% 
+    mutate(song = word(Title, 1,2))
+
+
 
 # combine books into a list
 ts_words <- taylor_swift_lyrics %>%
@@ -125,7 +128,7 @@ ts_pos_neg_album %>%
   ggplot(aes(word, n)) +
   geom_col(show.legend = FALSE) +
   scale_x_reordered() +
-  facet_wrap(facets = vars(book), scales = "free_y") +
+  facet_wrap(facets = vars(Album), scales = "free_y") +
   labs(
     title = "Negative words used in Taylor Swift albums",
     x = NULL,
@@ -139,7 +142,7 @@ ts_pos_neg_album %>%
 # Generate data frame with sentiment derived from the AFINN dictionary
 (ts_afinn <- ts_words %>%
     inner_join(get_sentiments("afinn")) %>%
-    group_by(Album, Title))
+    group_by(Album, song))
 
 # for further practice (at home): 
 # repeat (and adapt) the code above, using the AFINN dictionary instead
@@ -168,9 +171,9 @@ ts_afinn %>%
 # Visualize positive/negative sentiment for each book over time using AFINN dictionary
 ts_words %>%
   inner_join(get_sentiments("afinn")) %>%
-  group_by(Title, Album) %>%
+  group_by(song, Album) %>%
   summarize(value = sum(value)) %>%
-  ggplot(mapping = aes(x = Title, y = value, fill = Album)) +
+  ggplot(mapping = aes(x = song, y = value, fill = Album)) +
   geom_col() +
   facet_wrap(facets = vars(Album), scales = "free_x") +
   labs(
@@ -186,4 +189,4 @@ ts_words %>%
 
 ### ACKNOWLEDGMENTS
 
-#Based on code by Sabrina Nardin and using data from Benjamin Soltoff
+#Based on code by Sabrina Nardin and using data from Benjamin Soltoff and Kaggle

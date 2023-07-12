@@ -66,6 +66,7 @@ ts_words %>%
   coord_flip() +
   theme(legend.position = "none")
 ggsave(path = "img/", "ts_frequent_words.png", width = 8)
+ggsave(path = "../course-site/static/img/", "ts_frequent_words.png")
 
 ### 3. SENTIMENT ANALYSIS EXAMPLE USING BING DICTIONARY
 
@@ -100,6 +101,8 @@ ts_bing %>%
   ) +
   coord_flip()
 ggsave(path = "img/", "ts_sentiment.png")
+ggsave(path = "../course-site/static/img/", "ts_sentiment.png")
+
 
 ## for each album
 ts_pos_neg_album <- ts_bing %>%
@@ -125,6 +128,7 @@ ts_pos_neg_album %>%
   ) +
   coord_flip()
 ggsave(path = "img/", "ts_positive_words_album.png")
+ggsave(path = "../course-site/static/img/", "ts_positive_words_album.png")
 
 ## negative words
 ts_pos_neg_album %>%
@@ -140,7 +144,8 @@ ts_pos_neg_album %>%
     y = "Number of occurences"
   ) +
   coord_flip()
-ggsave(path = "img/", "ts_negative_words_album")
+ggsave(path = "img/", "ts_negative_words_album.png")
+ggsave(path = "../course-site/static/img/", "ts_negative_words_album.png") #for slides easy access
 
 
 ### 4. SENTIMENT ANALYSIS EXAMPLE USING AFINN DICTIONARY
@@ -172,6 +177,7 @@ ts_afinn %>%
   ggtitle("Most frequent tokens in Taylor Swift Lyrics") +
   theme_minimal()
 ggsave(path = "img/", "ts_wordcloud.png")
+ggsave(path = "../course-site/static/img/", "ts_wordcloud.png")
 
 
 # Visualize positive/negative sentiment for each album using AFINN dictionary
@@ -190,6 +196,7 @@ ts_words %>%
   ) +
   theme(legend.position = "none", axis.text.x = element_text(angle = 45, hjust = 1))
 ggsave(path = "img/", "ts_word_cloud")
+ggsave(path = "../course-site/static/img/", "ts_word_cloud")
 
 ## BONUS!! DEALING WITH MESSY DATA
 # the data I had for the original lyrics was already cleaned. for your own fun (!), 

@@ -195,8 +195,8 @@ ts_words %>%
     y = "Emotional score"
   ) +
   theme(legend.position = "none", axis.text.x = element_text(angle = 45, hjust = 1))
-ggsave(path = "img/", "ts_word_cloud")
-ggsave(path = "../course-site/static/img/", "ts_word_cloud")
+ggsave(path = "img/", "ts_sentiment_album.png")
+ggsave(path = "../course-site/static/img/", "ts_ts_sentiment_album.png")
 
 ## BONUS!! DEALING WITH MESSY DATA
 # the data I had for the original lyrics was already cleaned. for your own fun (!), 

@@ -20,7 +20,8 @@ library(stringr)
 taylor_swift_lyrics <- read_csv("data/expanded_swift_lyrics.csv")
 
 albums <- c("Taylor Swift", "Fearless", "Speak Now",  "Red", "1989", "Reputation", "Lover", "Folklore", "Evermore", "Midnights 3am Edition")
- 
+
+# put the albums in order!
 taylor_swift_lyrics <- taylor_swift_lyrics  %>% 
   mutate(
     Album = factor(Album, levels = albums)
@@ -32,7 +33,7 @@ taylor_swift_lyrics <- taylor_swift_lyrics %>%
 
 
 
-# combine books into a list
+# combine albums into a list
 ts_words <- taylor_swift_lyrics %>%
   # convert book to a factor
   mutate(Album = factor(Album)) %>%
@@ -64,6 +65,7 @@ ts_words %>%
   facet_wrap(facets = vars(Album), scales = "free") +
   coord_flip() +
   theme(legend.position = "none")
+ggsave(path = "img/", "ts_frequent_words.png", width = 8)
 
 ### 3. SENTIMENT ANALYSIS EXAMPLE USING BING DICTIONARY
 

@@ -17,10 +17,16 @@ library(stringr)
 
 
 ### 2.LOAD AND PROCESS DATA 
-taylor_swift_lyrics <- read_csv("data/taylor_swift_lyrics.csv")
+taylor_swift_lyrics <- read_csv("data/expanded_swift_lyrics.csv")
 
-albums <- c("Taylor Swift", "Fearless", "Speak Now",  "Red", "1989", "reputation", "Lover", "folklore", "Midnights 3am")
+albums <- c("Taylor Swift", "Fearless", "Speak Now",  "Red", "1989", "Reputation", "Lover", "Folklore", "Evermore", "Midnights 3am Edition")
+ 
+taylor_swift_lyrics <- taylor_swift_lyrics  %>% 
+  mutate(
+    Album = factor(Album, levels = albums)
+  )
 
+#create shorter way to refer to the song for plotting purposes
 taylor_swift_lyrics <- taylor_swift_lyrics %>% 
     mutate(song = word(Title, 1,2))
 
@@ -29,12 +35,7 @@ taylor_swift_lyrics <- taylor_swift_lyrics %>%
 # combine books into a list
 ts_words <- taylor_swift_lyrics %>%
   # convert book to a factor
-  mutate(Album = factor(Album, levels = albums)) %>%
-  # remove empty chapters
-  #drop_na(value) %>%
-  # create a chapter id column
-  group_by(Album)  %>%
-  ungroup() %>%
+  mutate(Album = factor(Album)) %>%
   # tokenize the data frame
   unnest_tokens(word, Lyrics)
 # check
@@ -91,7 +92,7 @@ ts_bing %>%
   scale_x_reordered() +
   facet_wrap(facets = vars(sentiment), scales = "free_y") +
   labs(
-    title = "Sentimental words used in Taylor Swift Albums",
+    title = "Sentiment of words used in Taylor Swift Albums",
     x = NULL,
     y = "Number of occurences in all eight books (working on the rest!!)"
   ) +
@@ -168,10 +169,10 @@ ts_afinn %>%
 
 
 
-# Visualize positive/negative sentiment for each book over time using AFINN dictionary
+# Visualize positive/negative sentiment for each album using AFINN dictionary
 ts_words %>%
   inner_join(get_sentiments("afinn")) %>%
-  group_by(song, Album) %>%
+  group_by(Album, song) %>%
   summarize(value = sum(value)) %>%
   ggplot(mapping = aes(x = song, y = value, fill = Album)) +
   geom_col() +
@@ -185,7 +186,9 @@ ts_words %>%
   theme(legend.position = "none", axis.text.x = element_text(angle = 45, hjust = 1))
 
 
-
+## BONUS!! DEALING WITH MESSY DATA
+# the data I had for the original lyrics was already cleaned. for your own fun (!), 
+# there's a bonus folder in data that shows the cleaning process + files
 
 ### ACKNOWLEDGMENTS
 

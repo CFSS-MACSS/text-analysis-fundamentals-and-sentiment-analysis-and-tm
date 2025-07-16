@@ -8,18 +8,17 @@
 # For other examples see the book, especially chapter 2 and the case-study chapters
 
 
-
+############### Getting started ############
 ### 1. LOAD/INSTALL LIBRARIES 
 
-library(tidyverse)
-library(tidytext)
-library(stringr)
-library(forcats)
 library(topicmodels)
 library(ggwordcloud)
+library(tidytext)
+library(textdata)
+library(tidyverse)
 
 
-### 2.LOAD AND PROCESS DATA 
+### 2.LOAD AND PROCESS DATA  ######
 taylor_swift_lyrics <- read_csv("data/expanded_swift_lyrics.csv")
 
 albums <- c("Taylor Swift", "Fearless", "Speak Now",  "Red", "1989", "Reputation", "Lover", "Folklore", "Evermore", "Midnights 3am Edition")
@@ -66,7 +65,7 @@ ts_words %>%
   coord_flip() +
   theme(legend.position = "none")
 ggsave(path = "img/", "ts_frequent_words.png", width = 8)
-ggsave(path = "../course-site/static/img/", "ts_frequent_words.png")
+
 
 
 
@@ -92,10 +91,9 @@ ts_words %>%
   facet_wrap(facets = vars(Album), scales = "free", nrow = 2) +
   coord_flip() +
   theme(legend.position = "none")
-ggsave(path = "img/", "ts_frequent_words_album.png", width = 8)
-ggsave(path = "../course-site/static/img/", "ts_frequent_words_album.png", width = 10)
+ggsave(path = "img/", "ts_frequent_words_album.png", width = 8) 
 
-### 3. SENTIMENT ANALYSIS EXAMPLE USING BING DICTIONARY
+### 3. SENTIMENT ANALYSIS EXAMPLE USING BING DICTIONARY ###########
 
 # generate data frame with sentiment derived from the Bing dictionary
 (ts_bing <- ts_words %>%
@@ -127,8 +125,7 @@ ts_bing %>%
     y = "Number of occurences in all eight albums (working on the rest!!)"
   ) +
   coord_flip()
-ggsave(path = "img/", "ts_sentiment.png")
-ggsave(path = "../course-site/static/img/", "ts_sentiment.png")
+ggsave(path = "img/", "ts_sentiment.png") 
 
 
 ## for each album
@@ -154,8 +151,7 @@ ts_pos_neg_album %>%
     y = "Number of occurences"
   ) +
   coord_flip()
-ggsave(path = "img/", "ts_positive_words_album.png")
-ggsave(path = "../course-site/static/img/", "ts_positive_words_album.png")
+ggsave(path = "img/", "ts_positive_words_album.png") 
 
 ## negative words
 ts_pos_neg_album %>%
@@ -171,15 +167,14 @@ ts_pos_neg_album %>%
     y = "Number of occurences"
   ) +
   coord_flip()
-ggsave(path = "img/", "ts_negative_words_album.png")
-ggsave(path = "../course-site/static/img/", "ts_negative_words_album.png") #for slides easy access
+ggsave(path = "img/", "ts_negative_words_album.png") 
 
 
-### 4. SENTIMENT ANALYSIS EXAMPLE USING AFINN DICTIONARY
+### 4. SENTIMENT ANALYSIS EXAMPLE USING AFINN DICTIONARY #####
 
 # Generate data frame with sentiment derived from the AFINN dictionary
 (ts_afinn <- ts_words %>%
-    inner_join(get_sentiments("afinn")) %>%
+    inner_join(get_sentiments(lexicon = "afinn")) %>%
     group_by(Album, song))
 
 # for further practice (at home): 
@@ -203,8 +198,7 @@ ts_afinn %>%
   scale_size_area(max_size = 10) +
   ggtitle("Most frequent 200 tokens in Taylor Swift Lyrics") +
   theme_minimal()
-ggsave(path = "img/", "ts_wordcloud.png")
-ggsave(path = "../course-site/static/img/", "ts_wordcloud.png")
+ggsave(path = "img/", "ts_wordcloud.png") 
 
 # Visualize positive/negative sentiment using BING dictionary
 ts_words %>%
@@ -215,8 +209,7 @@ ts_words %>%
                    max.words = 100) +
   ggtitle("Most frequent Positive (dark gray) and Negative (light gray) tokens in Taylor Swift Lyrics") +
   theme_minimal()
-ggsave(path = "img/", "ts_wordcloud_pos_neg.png")
-ggsave(path = "../course-site/static/img/", "ts_wordcloud_pos_neg.png")
+ggsave(path = "img/", "ts_wordcloud_pos_neg.png") 
 
 
 # Visualize positive/negative sentiment for each album using AFINN dictionary
@@ -234,8 +227,7 @@ ts_words %>%
     y = "Emotional score"
   ) +
   theme(legend.position = "none", axis.text.x = element_text(angle = 45, hjust = 1))
-ggsave(path = "img/", "ts_sentiment_album.png")
-ggsave(path = "../course-site/static/img/", "ts_sentiment_album.png", width = 10)
+ggsave(path = "img/", "ts_sentiment_album.png") 
 
 
 
@@ -280,7 +272,6 @@ album_tf_idf %>%
   facet_wrap(~Album, ncol = 5, scales = "free") +
   labs(x = "tf-idf", y = NULL)
 ggsave(path = "img/", "ts_idf_words.png", width = 8)
-ggsave(path = "../course-site/static/img/", "ts_idf_words.png", width = 10)
 
 
 ## GETTING CRAZY! BIGRAMS!
@@ -310,7 +301,7 @@ bigrams_filtered %>%
 # but I plan to revisit this if/when I break the albums into eras!
 
 #############################
-## TOPIC MODELS
+## TOPIC MODELS ######
 
 ts_words_count <- ts_words %>%
   # delete stopwords
@@ -325,6 +316,9 @@ ts_words_count <- ts_words %>%
 # cast_dtm()
 ts_td <- cast_dtm(ts_words_count, Album_song, word, n)
 ts_td
+
+#if you want to look at the dtm:
+ts_td %>% tm::inspect()
 
 # conduct LDA
 ts_lda2 <- LDA(ts_td, k = 2, control = list(seed = 1234))
@@ -356,8 +350,7 @@ labs(
   y = "Word count"
 ) +
   theme(legend.position = "none")
-ggsave(path = "img/", "ts_frequent_words_topics.png", width = 8)
-ggsave(path = "../course-site/static/img/", "ts_frequent_words_topics.png", width = 8)
+ggsave(path = "img/", "ts_frequent_words_topics.png", width = 8) 
 
 
 # could also explore the greatest difference in the two:
@@ -370,7 +363,7 @@ beta_wide
 
 
 
-## A DEEPER DIVE INTO THE SWIFTIEVERSE
+## A DEEPER DIVE INTO THE SWIFTIEVERSE ########
 # note: i manually ran this with 2, 3, and 10 to get the plots 
 # but iddn't want to replicate that code here for space / concision
 
@@ -387,14 +380,12 @@ albums_gamma %>%
   geom_label() +
   facet_wrap(~ topic) +
   labs(x = "Topic", y = expression(gamma))
-ggsave(path = "img/", "ts_10topics.png", width = 8)
-ggsave(path = "../course-site/static/img/", "ts_10topics.png", width = 8)
+ggsave(path = "img/", "ts_10topics.png", width = 8) 
 
 
-## BONUS!! DEALING WITH MESSY DATA
+## BONUS!! DEALING WITH MESSY DATA #######
 # the data I had for the original lyrics was already cleaned. for your own fun (!), 
 # there's a bonus folder in data that shows the cleaning process + files
 
-### ACKNOWLEDGMENTS
-
+### ACKNOWLEDGMENTS #######
 #Based on code by Sabrina Nardin and using data from Kaggle
